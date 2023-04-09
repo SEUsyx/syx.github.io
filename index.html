@@ -31,8 +31,8 @@
 
 
 <script src="/js/hljs.min.js"></script>
-
-<script>hljs.initHighlightingOnLoad();</script>
+ 
+<script>hljs.highlightAll();</script>
 
 	<meta name="generator" content="Hexo 6.1.0"></head>
 
@@ -167,16 +167,16 @@
         z-index: 1998;
     }
     .sidebar {
-        width: 0;
+        width: 66%;
         height: 100%;
         position: fixed;
         top: 0;
-        right: 0;
+        right: -100%;
         bottom: 0;
         background: #fff;
         z-index: 1999;
         text-align: center;
-        box-shadow: -6px 0 20px rgba(98, 94, 94, .815)
+        box-shadow: -6px 0 20px rgba(98, 94, 94, .815);
     }
 
     .topo {
@@ -257,7 +257,7 @@
 		.click( function () {
 			$( '.sidebar' )
 				.animate( {
-					width: "66%"
+					right: "0"
 				}, 500 );
 			$( '.shelter' )
 				.fadeIn( "slow" )
@@ -266,7 +266,7 @@
 		.click( function ( e ) {
 			$( '.sidebar' )
 				.animate( {
-					width: "0"
+					right: "-100%"
 				}, 500 );
 			$( '.shelter' )
 				.fadeOut( "slow" )
@@ -286,105 +286,109 @@
     </div>
 </div>
 	<div class="main">
-		<div class="feed" id="content">
-			
-				<div class="feed-display">
-					<a href="/2023/04/09/java%E5%9F%BA%E7%A1%80/">
-						<h2 class="feed-title">
-							java基础
-						</h2>
-						
-								<img src="image/cover.png" alt="Quiet">
-								
-					</a>
-					<div class="feed-meat">
-						<div class="meat-info">
-							<div class="info-auth">
-									<a href="categories/Java/">
-										Java
-									</a>
-							</div>
-							<div class="info-data">
-								2023-04-09
-							</div>
-						</div>
-						<div class="meat-type"></div>
-					</div>
-				</div>
+		
+			<div class="post-card" id="content">
 				
-				<div class="feed-display">
-					<a href="/2022/05/30/%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%971/">
-						<h2 class="feed-title">
-							服务器开发日志-1
-						</h2>
-						
+					<div class="post-card-display">
+						<a href="/2023/04/09/java%E5%9F%BA%E7%A1%80/">
+							<h2 class="post-card-title">
+								java基础
+							</h2>
+							
 								<img src="image/cover.png" alt="Quiet">
-								
-					</a>
-					<div class="feed-meat">
-						<div class="meat-info">
-							<div class="info-auth">
-									<a href="categories/网络服务器开发/">
-										网络服务器开发
-									</a>
+							
+						</a>
+						<div class="post-card-meat">
+							<div class="meat-info">
+								<div class="info-auth">
+										<a href="categories/Java/">
+											Java
+										</a>
+								</div>
+								<div class="info-data">
+									2023-04-09
+								</div>
 							</div>
-							<div class="info-data">
-								2022-05-30
-							</div>
+							<div class="meat-type"></div>
 						</div>
-						<div class="meat-type"></div>
 					</div>
-				</div>
 				
-				<div class="feed-display">
-					<a href="/2022/05/08/%E7%BD%91%E7%AB%99%E6%A8%A1%E6%9D%BF%E4%BD%BF%E7%94%A8/">
-						<h2 class="feed-title">
-							blog文件头怎么写
-						</h2>
-						
+					<div class="post-card-display">
+						<a href="/2022/05/30/%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%971/">
+							<h2 class="post-card-title">
+								服务器开发日志-1
+							</h2>
+							
 								<img src="image/cover.png" alt="Quiet">
-								
-					</a>
-					<div class="feed-meat">
-						<div class="meat-info">
-							<div class="info-auth">
-									<a href="categories/网站模板使用/">
-										网站模板使用
-									</a>
+							
+						</a>
+						<div class="post-card-meat">
+							<div class="meat-info">
+								<div class="info-auth">
+										<a href="categories/网络服务器开发/">
+											网络服务器开发
+										</a>
+								</div>
+								<div class="info-data">
+									2022-05-30
+								</div>
 							</div>
-							<div class="info-data">
-								2022-05-08
-							</div>
+							<div class="meat-type"></div>
 						</div>
-						<div class="meat-type"></div>
 					</div>
-				</div>
 				
-				<div class="feed-display">
-					<a href="/2022/05/08/hexo%20%E6%93%8D%E4%BD%9C/">
-						<h2 class="feed-title">
-							hexo 操作
-						</h2>
-						
+					<div class="post-card-display">
+						<a href="/2022/05/08/%E7%BD%91%E7%AB%99%E6%A8%A1%E6%9D%BF%E4%BD%BF%E7%94%A8/">
+							<h2 class="post-card-title">
+								blog文件头怎么写
+							</h2>
+							
 								<img src="image/cover.png" alt="Quiet">
-								
-					</a>
-					<div class="feed-meat">
-						<div class="meat-info">
-							<div class="info-auth">
-									<a href="categories/网站模板使用/">
-										网站模板使用
-									</a>
+							
+						</a>
+						<div class="post-card-meat">
+							<div class="meat-info">
+								<div class="info-auth">
+										<a href="categories/网站模板使用/">
+											网站模板使用
+										</a>
+								</div>
+								<div class="info-data">
+									2022-05-08
+								</div>
 							</div>
-							<div class="info-data">
-								2022-05-08
-							</div>
+							<div class="meat-type"></div>
 						</div>
-						<div class="meat-type"></div>
 					</div>
-				</div>
 				
-		</div>
+					<div class="post-card-display">
+						<a href="/2022/05/08/hexo%20%E6%93%8D%E4%BD%9C/">
+							<h2 class="post-card-title">
+								hexo 操作
+							</h2>
+							
+								<img src="image/cover.png" alt="Quiet">
+							
+						</a>
+						<div class="post-card-meat">
+							<div class="meat-info">
+								<div class="info-auth">
+										<a href="categories/网站模板使用/">
+											网站模板使用
+										</a>
+								</div>
+								<div class="info-data">
+									2022-05-08
+								</div>
+							</div>
+							<div class="meat-type"></div>
+						</div>
+					</div>
+				
+			</div>
+		
+		
+	
 	</div>
 	<div class="change-page">
 		
@@ -397,7 +401,7 @@
 	<div class="Copyright">
 		©2023 By SYX. 主题：<a
 			style="text-decoration: none;display: contents; color: #898F9F;"
-			target="_blank" rel="noopener" href="https://github.com/qiaobug/hexo-theme-quiet">Quiet</a>
+			target="_blank" rel="noopener" href="https://github.com/79e/hexo-theme-quiet">Quiet</a>
 	</div>
 	<div class="contact">
 		
@@ -494,11 +498,14 @@
             id:location.pathname,
             distractionFreeMode:false
         })
-        gitalk.render('gitalk-container')
+        
+        if(Boolean('')){
+            gitalk.render('gitalk-container')
+        }
     </script>
 
 <script>
-	console.log('\n %c Hexo-Quiet 主题 %c https://github.com/QiaoBug/hexo-theme-quiet \n', 'color: #fadfa3; background: #030307; padding:5px 0;', 'background: #fadfa3; padding:5px 0;')
+	console.log('\n %c Hexo-Quiet 主题 %c https://github.com/79e/hexo-theme-quiet \n', 'color: #fadfa3; background: #030307; padding:5px 0;', 'background: #fadfa3; padding:5px 0;')
 </script>
 	</body>
 </html>
