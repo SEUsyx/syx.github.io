@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		
+<title>服务器开发日志-1-syx</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" type="image/x-icon" href="/image/logo.ico">
+
+<link rel="stylesheet" href="/css/index.css">
+
+
+
+<meta name="keywords" content="webserver,epoll,linux,">
+<meta name="description" content="">
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+<script src="/js/index.js"></script>
+
+
+<script src="/js/fancybox.umd.js"></script>
+
+
+<script src="/js/fancybox-images.js"></script>
+
+
+<script src="/js/gitalk.min.js"></script>
+
+
+<script src="/js/hljs.min.js"></script>
+
+<script>hljs.initHighlightingOnLoad();</script>
+
+	<meta name="generator" content="Hexo 6.1.0"></head>
+
+	<body>
+		
+	<div class="header">
+		<div class="header-top" id="header-top">
+			<div class="h-left">
+				<a href="/">
+					<img src="/image/logo.png" alt="Quiet">
+				</a>
+			</div>
+			<div class="h-right">
+				<ul>
+					
+						
+								<li>
+									<a href="/">
+										home
+									</a>
+									<span class="dot"></span>
+								</li>
+								
+									
+						
+								<li>
+									<a href="/archives">
+										archives
+									</a>
+									<span class="dot"></span>
+								</li>
+								
+									
+						
+								<li>
+									<a href="/categories">
+										categories
+									</a>
+									<span class="dot"></span>
+								</li>
+								
+									
+						
+								<li>
+									<a href="/tags">
+										tags
+									</a>
+									<span class="dot"></span>
+								</li>
+								
+									
+						
+								<li>
+									<a href="/links">
+										links
+									</a>
+									<span class="dot"></span>
+								</li>
+								
+									
+						
+								<li>
+									<a href="/about">
+										about
+									</a>
+									<span class="dot"></span>
+								</li>
+								
+									
+				</ul>
+			</div>
+			<div class="h-right-close">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+					<path fill="none" d="M0 0h24v24H0z" />
+					<path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z" fill="rgba(68,68,68,1)" />
+				</svg>
+			</div>
+		</div>
+	</div>
+	<div class="sidebar">
+    <div class="topo">
+        <h2>SYX</h2>
+    </div>
+    <ul>
+        
+        <li>
+            <a href="/">home</a>
+        </li>
+        
+        <li>
+            <a href="/archives">archives</a>
+        </li>
+        
+        <li>
+            <a href="/categories">categories</a>
+        </li>
+        
+        <li>
+            <a href="/tags">tags</a>
+        </li>
+        
+        <li>
+            <a href="/links">links</a>
+        </li>
+        
+        <li>
+            <a href="/about">about</a>
+        </li>
+        
+    </ul>
+    <div class="my_foot">
+        
+        <a target="_blank" rel="noopener" href="https://github.com/SIIYIIX/">
+            <img src="/image/github.jpeg" alt="Quiet主题">
+        </a>
+        
+    </div>
+</div>
+<div class='shelter'>
+</div>
+<style>
+    .shelter{
+        background-color: #333;
+        opacity:0.5;
+        cursor: pointer;
+        display: none; 
+        position: fixed;
+        left: 0;
+        top: 0; 
+        right: 0;
+        bottom: 0;
+        z-index: 1998;
+    }
+    .sidebar {
+        width: 0;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background: #fff;
+        z-index: 1999;
+        text-align: center;
+        box-shadow: -6px 0 20px rgba(98, 94, 94, .815)
+    }
+
+    .topo {
+        width: 100%;
+        height: 200px;
+        background: url(https://api.ixiaowai.cn/gqapi/gqapi.php) no-repeat;
+        background-size: 100% 100%;
+        position: relative;
+        display: flex;
+        align-items: flex-end
+    }
+
+    .topo h2 {
+        color: #fff;
+        z-index: 1;
+        position: relative;
+        margin: 0 0 10px 10px;
+        font-size: 1.2em;
+        box-sizing: border-box
+    }
+
+    .topo:before {
+        content: '';
+        background-image: url(/image/pattern.png);
+        background-repeat: repeat;
+        height: 100%;
+        left: 0;
+        position: absolute;
+        top: 0;
+        width: 100%;
+        z-index: 1
+    }
+
+    .sidebar ul {
+        width: 100%;
+        margin-top: 50px
+    }
+
+    .sidebar ul li {
+        height: 50px;
+        list-style: none;
+        font-size: 1.2em;
+        text-align: right;
+        margin-right: 10px
+    }
+
+    .sidebar ul li a {
+        display: grid;
+        color: #5d606a;
+        text-overflow: ellipsis;
+        width: 100%;
+        text-decoration: none
+    }
+
+    .my_foot {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        position: absolute;
+        bottom: 0
+    }
+
+    .my_foot a {
+        text-decoration: none;
+        margin-right: 10px;
+        display: inline-block
+    }
+
+    .my_foot a img {
+        width: 30px;
+        height: 30px
+    }
+</style>
+
+<script>
+    $( function () {
+	$( '.h-right-close>svg' )
+		.click( function () {
+			$( '.sidebar' )
+				.animate( {
+					width: "66%"
+				}, 500 );
+			$( '.shelter' )
+				.fadeIn( "slow" )
+		} );
+	$( '.shelter' )
+		.click( function ( e ) {
+			$( '.sidebar' )
+				.animate( {
+					width: "0"
+				}, 500 );
+			$( '.shelter' )
+				.fadeOut( "slow" )
+		} )
+} )
+
+</script>
+
+<div class="post">
+    <div class="post-header-background post-header-img"
+    style="background: url('image/cover.png')" 
+>
+    <div class="post-header-background-content">
+        <ul class="post-header-tag">
+            
+            
+            <li><a href="/tags/webserver">webserver</a></li>
+            
+            <li><a href="/tags/epoll">epoll</a></li>
+            
+            <li><a href="/tags/linux">linux</a></li>
+            
+            
+        </ul>
+        
+        <h1>服务器开发日志-1</h1>
+        <div class="post-header-info">
+            <div class="post-header-info-author">
+                
+                    <svg t="1604839279282" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                        xmlns="http://www.w3.org/2000/svg" p-id="2901" width="20" height="20">
+                        <path
+                            d="M513 956.3c-247.7 0-448-200.3-448-448S265.3 66.2 513 66.2s448 200.3 448 448-200.3 442.1-448 442.1z m0-830.9c-212.2 0-388.8 170.7-388.8 388.8C124.2 726.3 294.9 903 513 903c212.2 0 388.8-170.7 388.8-388.8S725.2 125.4 513 125.4z m0 430.2c-94.2 0-170.7-76.5-170.7-170.7S418.8 207.8 513 207.8s170.7 76.5 170.7 170.7S607.2 555.6 513 555.6z m0-289.1c-64.6 0-112 52.8-112 112s47.4 117.9 112 117.9 112-52.8 112-112-47.4-117.9-112-117.9z m0 689.8c-135.7 0-259-58.7-341.9-158.9l-11.8-17.8 11.8-17.8c76.5-117.9 206.2-188.5 347.8-188.5 135.7 0 265 64.6 341.9 182.6l11.8 17.8-11.8 17.8C778 897.1 648.7 956.3 513 956.3zM230.3 773.2C300.9 849.7 406.9 897 513 897c112 0 218.1-47.4 288.6-129.8-70.5-88.2-170.7-135.6-282.7-135.6s-218.1 53.3-288.6 141.6z"
+                            p-id="2902" fill="#ffffff"></path>
+                    </svg>
+                    
+                <span class="post-header-info-author-text"> <a target="_blank" rel="noopener" href="https://github.com/">syx</a></span>
+                <div class="post-header-info-author-categories">
+                    
+                         <a href="../../categories/网络服务器开发/" target="_blank" >网络服务器开发</a>
+                    
+                </div>
+                <p>2022-05-30 00:00:00</p>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="post-content" id="content">
+  <div id="article" class="post-content-info">
+      <h1 id="服务器第一阶段"><a href="#服务器第一阶段" class="headerlink" title="服务器第一阶段"></a>服务器第一阶段</h1><h2 id="编程风格"><a href="#编程风格" class="headerlink" title="编程风格"></a>编程风格</h2><p>没有风格…，集百家之所成0.0</p>
+<h2 id="基本功能"><a href="#基本功能" class="headerlink" title="基本功能"></a>基本功能</h2><p>目标：处理get请求</p>
+<p>基本思路：</p>
+<ul>
+<li>webserver类：主要的基本功能类<ul>
+<li>配置服务器基本选项（端口，线程数），后续可扩展</li>
+<li>监听连接请求（固定模板）</li>
+<li>处理epoll事件：</li>
+</ul>
+</li>
+<li>util类：常用函数<ul>
+<li>epoll中添加、修改fd的注册事件</li>
+</ul>
+</li>
+<li>httpconn类：http请求处理类<ul>
+<li>处理http请求</li>
+<li>解析请求报文</li>
+<li>拼接相应报文</li>
+</ul>
+</li>
+<li>threadpool：线程池类</li>
+</ul>
+<h3 id="webserver类：主要的基本功能类"><a href="#webserver类：主要的基本功能类" class="headerlink" title="webserver类：主要的基本功能类"></a>webserver类：主要的基本功能类</h3><ul>
+<li><p>配置服务器基本选项（端口，线程数），后续可扩展</p>
+</li>
+<li><p>重要成员变量：</p>
+  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ThreadPool&lt;http_conn&gt; *_thread_pool; <span class="comment">//线程池</span></span><br><span class="line">http_conn *_users; <span class="comment">//http请求数组</span></span><br><span class="line"><span class="type">int</span> _listenfd;         <span class="comment">// 监听套接字</span></span><br><span class="line"><span class="type">int</span> _epollfd;           <span class="comment">// epoll句柄</span></span><br><span class="line">epoll_event  _epoll_events[MAX_EVENT_NUMBER];   <span class="comment">// epoll事件列表</span></span><br></pre></td></tr></table></figure></li>
+<li><p>监听连接请求（固定模板）</p>
+  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//创建一个用于监听的套接字</span></span><br><span class="line"><span class="type">int</span> listenfd= <span class="built_in">socket</span>(PF_INET, SOCK_STREAM, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//设置端口复用</span></span><br><span class="line"><span class="type">int</span> reuse=<span class="number">1</span>;</span><br><span class="line"><span class="built_in">setsockopt</span>(listenfd, SOL_SOCKET, SO_REUSEADDR, &amp;reuse, <span class="built_in">sizeof</span>(reuse));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 绑定</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">sockaddr_in</span> address;</span><br><span class="line">address.sin_family=AF_INET;</span><br><span class="line">address.sin_addr.s_addr=INADDR_ANY;</span><br><span class="line">address.sin_port = <span class="built_in">htons</span>(port);</span><br><span class="line"><span class="built_in">bind</span>(listenfd, (<span class="keyword">struct</span> sockaddr* )&amp;address, <span class="built_in">sizeof</span>(address));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 监听</span></span><br><span class="line"><span class="built_in">listen</span>(listenfd, <span class="number">5</span>);</span><br></pre></td></tr></table></figure></li>
+<li><p>使用I&#x2F;O多路复用 epoll</p>
+  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建epoll</span></span><br><span class="line">_epollfd=<span class="built_in">epoll_create</span>(<span class="number">5</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//将监听的文件描述符添加到epoll中</span></span><br><span class="line"><span class="built_in">addfd</span>(_epollfd, _listenfd, <span class="literal">false</span>);  <span class="comment">//util文件中, //用于监听的文件描述符不设置one_shot</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>处理epoll事件：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>(<span class="literal">true</span>)&#123;</span><br><span class="line">    <span class="type">int</span> num=<span class="built_in">epoll_wait</span>(_epollfd, _epoll_events,MAX_EVENT_NUMBER,<span class="number">-1</span>);</span><br><span class="line">    <span class="keyword">if</span>(num&lt; <span class="number">0</span> &amp;&amp; errno != EINTR)&#123;</span><br><span class="line">        <span class="comment">//read()如果读到数据为0，那么就表示文件结束了，如果在读的过程中遇到了中断那么会返回-1，同时置errno为EINTR。</span></span><br><span class="line">        <span class="comment">//write()如果写的过程中遇到中断就会返回-1 并设置errno为EINTR</span></span><br><span class="line">        <span class="comment">//为了排除上述两种情况，设置条件为errno != EINTR</span></span><br><span class="line">        cout&lt;&lt;<span class="string">&quot;epoll failed!&quot;</span>&lt;&lt;endl;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>; i&lt;num; i++)&#123;</span><br><span class="line">        <span class="keyword">if</span>(_epoll_events[i].data.fd == _listenfd)&#123;</span><br><span class="line">            <span class="comment">//连接请求</span></span><br><span class="line">            <span class="built_in">dealClinetData</span>();   <span class="comment">//主要是accept（）函数和将读写的文件描述符添加到epoll中</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(_epoll_events[i].events &amp; (EPOLLRDHUP | EPOLLHUP | EPOLLERR) )&#123;  </span><br><span class="line">            <span class="comment">// 对方关闭或挂起，发生错误</span></span><br><span class="line">            cout&lt;&lt;<span class="string">&quot;client error!&quot;</span>&lt;&lt;endl;</span><br><span class="line">            _users[_epoll_events[i].data.fd].<span class="built_in">close_conn</span>(); </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(_epoll_events[i].events &amp; EPOLLIN)&#123;</span><br><span class="line">            <span class="comment">//读事件</span></span><br><span class="line">            <span class="built_in">dealRead</span>(_epoll_events[i].data.fd); </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(_epoll_events[i].events &amp; EPOLLOUT)&#123;</span><br><span class="line">            <span class="comment">//写事件</span></span><br><span class="line">            <span class="built_in">dealWrite</span>(_epoll_events[i].data.fd); </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="util文件：常用函数"><a href="#util文件：常用函数" class="headerlink" title="util文件：常用函数"></a>util文件：常用函数</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">addfd</span><span class="params">(<span class="type">int</span> epollfd, <span class="type">int</span> fd, <span class="type">bool</span> one_shot)</span></span>&#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    * 添加需要监听的文件描述符到epoll中</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    epoll_event event;</span><br><span class="line">    event.data.fd=fd;</span><br><span class="line">    event.events = EPOLLIN | EPOLLRDHUP;  <span class="comment">//LT模式</span></span><br><span class="line">    <span class="comment">//  event.events=EPOLLIN  | EPOLLRDHUP| EPOLLET;  //ET模式</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(one_shot)&#123; </span><br><span class="line">        event.events|=EPOLLONESHOT; <span class="comment">//添加EPOLLONETSHOT事件,防止一个Socket被多个线程操作</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">epoll_ctl</span>(epollfd,EPOLL_CTL_ADD,fd,&amp;event);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">setnonblocking</span>(fd); <span class="comment">//设置文件描述符非阻塞</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">setnonblocking</span><span class="params">(<span class="type">int</span> fd)</span></span>&#123;</span><br><span class="line">    <span class="type">int</span> old_flag=<span class="built_in">fcntl</span>(fd, F_GETFL);</span><br><span class="line">    <span class="type">int</span> new_flag= old_flag | O_NONBLOCK;</span><br><span class="line">    <span class="built_in">fcntl</span>(fd, F_SETFL, new_flag);</span><br><span class="line">    <span class="keyword">return</span> old_flag;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">removefd</span><span class="params">(<span class="type">int</span> epollfd, <span class="type">int</span> fd)</span></span>&#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    * 从epoll中删除文件描述符</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="built_in">epoll_ctl</span>(epollfd, EPOLL_CTL_DEL, fd, <span class="number">0</span>);</span><br><span class="line">    <span class="built_in">close</span>(fd);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">modfd</span><span class="params">(<span class="type">int</span> epollfd, <span class="type">int</span> fd, <span class="type">int</span> ev)</span></span>&#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    * 修改文件描述符,重置socket上的EPOLLONESHOT事件,确保下一次可读时EPOLLIN事件能被触发</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    epoll_event event;</span><br><span class="line">    event.data.fd=fd;</span><br><span class="line">    event.events=ev | EPOLLONESHOT | EPOLLRDHUP;</span><br><span class="line">    <span class="built_in">epoll_ctl</span>(epollfd, EPOLL_CTL_MOD, fd, &amp;event);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>补充知识：<br>epoll事件：</p>
+<ul>
+<li>EPOLLIN：读事件</li>
+<li>EPOLLOUT：写事件</li>
+<li>EPOLLERR：错误，在我方进行读写时触发的，给已关闭的套接字写时就会触发，触发后该套接字可以关闭不再处理了；该事件无需设置，自动触发</li>
+<li>EPOLLRDHUP：对方连接断开，高版本的Linux对端连接断开，会触发该事件；需要主动设置（在linux内核2.6.17 之前的内核不支持）</li>
+<li>EPOLLHUP：挂起，对端连接关闭时触发，不需要主动设置</li>
+<li>EPOLLONETSHOT：即使是ET模式，某个事件还是可能被触发多次，会出现两个线程操作一个socket的局面，为了防止这种现象，使用EPOLLONETSHOT事件</li>
+</ul>
+<p>epoll_ctl的操作类型：</p>
+<ul>
+<li>EPOLL_CTL_ADD：往事件表中注册fd上的事件</li>
+<li>EPOLL_CTL_DEL：删除fd上的注册事件</li>
+<li>EPOLL_CTL_MOD：修改fd上的注册事件</li>
+</ul>
+<p>errno错误处理</p>
+<ul>
+<li>EINTR: 系统中断导致的异常返回，忽略继续调用epoll_wait即可</li>
+</ul>
+<p>为什么要把fd设置为非阻塞？<br>ET模式是循环读取，必须设置非阻塞<br>LT模式最好也设置成非阻塞，_listenfd阻塞的话，如果半连接队列中有需要处理的连接，accept函数会立即返回，否则会一直阻塞下去，直到新的连接到来，设置成非阻塞的时候，无论半连接队列是否有需要处理的连接，accpet都会立即返回，不会阻塞。如果有连接，则accept返回一个大于0的值，这个值即使我们上面所说的clientfd；如果没有连接，accept返回值小于0，错误码为EAGIN。<br>？？而且epoll事件可能通知错误，导致read和write阻塞（虽然没有while循环读写），保险起见无论ET还是LT都设置为非阻塞</p>
+<h3 id="httpconn类：http请求处理类"><a href="#httpconn类：http请求处理类" class="headerlink" title="httpconn类：http请求处理类"></a>httpconn类：http请求处理类</h3><ul>
+<li>重要成员变量<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> m_epollfd; <span class="comment">//所有的Socket事件都被注册到同一个epoll上</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> m_user_count; <span class="comment">//统计用户数量</span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="type">int</span> FILENAME_LEN = <span class="number">200</span>;        <span class="comment">// 文件名的最大长度</span></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="type">int</span> READ_BUFFER_SIZE=<span class="number">2048</span>; <span class="comment">//读缓冲大小</span></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="type">int</span> WRITE_BUFFER_SIZE=<span class="number">1024</span>; <span class="comment">//写缓冲大小</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> m_sockfd; <span class="comment">//文件描述符</span></span><br><span class="line">sockaddr_in m_address; <span class="comment">//客户端地址</span></span><br><span class="line"></span><br><span class="line"><span class="type">char</span> m_read_buf[READ_BUFFER_SIZE]; <span class="comment">//读缓冲区</span></span><br><span class="line"><span class="type">int</span> m_read_idx; <span class="comment">//标识读缓冲中以及读入客户端数据的最后一个字节的下一个位置</span></span><br><span class="line"></span><br><span class="line"><span class="type">char</span> m_write_buf[ WRITE_BUFFER_SIZE ];  <span class="comment">// 写缓冲区</span></span><br><span class="line"><span class="type">int</span> m_write_idx;                        <span class="comment">// 写缓冲区中待发送的字节数</span></span><br></pre></td></tr></table></figure></li>
+<li>初始化<ul>
+<li>保存用于通信的文件描述符</li>
+<li>保存客户端地址  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">http_conn::init</span><span class="params">(<span class="type">int</span> sockfd, sockaddr_in &amp;addr)</span> </span>&#123;</span><br><span class="line">    m_sockfd=sockfd;</span><br><span class="line">    m_address=addr;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//设置端口复用</span></span><br><span class="line">    <span class="type">int</span> reuse=<span class="number">1</span>;</span><br><span class="line">    <span class="built_in">setsockopt</span>(m_sockfd, SOL_SOCKET, SO_REUSEADDR, &amp;reuse, <span class="built_in">sizeof</span>(reuse));</span><br><span class="line"></span><br><span class="line">    <span class="built_in">addfd</span>(m_epollfd, m_sockfd, <span class="literal">true</span>);</span><br><span class="line">    m_user_count++;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">init</span>(); <span class="comment">//初始化其他变量</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>处理http请求<ul>
+<li><p>将数据一次性读出</p>
+  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">bool</span> <span class="title">http_conn::read</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    * 一次性读完所有数据，小疑问：读缓冲区一直不刷新，只有重新连接才会刷新？应该是的</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;read start&quot;</span>&lt;&lt;endl;</span><br><span class="line">    <span class="keyword">if</span>(m_read_idx&gt;=READ_BUFFER_SIZE)&#123;  <span class="comment">//读缓冲区满了 ， READ_BUFFER_SIZE=2048（2KB）</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">int</span> bytes_read=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span>(<span class="literal">true</span>)&#123;</span><br><span class="line">        bytes_read= <span class="built_in">recv</span>(m_sockfd, m_read_buf+m_read_idx, READ_BUFFER_SIZE-m_read_idx,<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span>(bytes_read==<span class="number">-1</span>)&#123;  <span class="comment">//无数据可读</span></span><br><span class="line">            <span class="keyword">if</span>(errno == EAGAIN || errno == EWOULDBLOCK)&#123; <span class="comment">//表示没有数据了</span></span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(bytes_read ==<span class="number">0</span>)&#123; <span class="comment">//对方关闭连接</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        m_read_idx+=bytes_read;</span><br><span class="line">    &#125;</span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;read data:&quot;</span>&lt;&lt;endl&lt;&lt;m_read_buf&lt;&lt;endl;</span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;read over&quot;</span>&lt;&lt;endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>总体处理流程</p>
+  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">http_conn::process</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    HTTP_CODE read_ret= <span class="built_in">process_read</span>();</span><br><span class="line">    <span class="keyword">if</span>(read_ret==NO_REQUEST)&#123;</span><br><span class="line">        <span class="built_in">modfd</span>(m_epollfd, m_sockfd, EPOLLIN); <span class="comment">//如果没有请求，重新注册描述符上的读事件和oneshot</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">bool</span> write_ret=<span class="built_in">process_write</span>(read_ret);</span><br><span class="line">    <span class="keyword">if</span>(!write_ret)&#123;</span><br><span class="line">        <span class="built_in">close_conn</span>(); <span class="comment">//发生异常就关闭连接，但是这个http_conn对象是没有销毁的，当连接到达时，如果分配到相同的connfd（相当于哈希映射），则会调用init重置所有变量（在void WebSever::dealClinetData()函数中），不用重复创建对象</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="built_in">modfd</span>(m_sockfd, m_sockfd, EPOLLOUT); <span class="comment">//往描述符上注册写事件和oneshot</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>关闭连接</p>
+  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">http_conn::close_conn</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(m_sockfd != <span class="number">-1</span>)&#123;</span><br><span class="line">        <span class="built_in">removefd</span>(m_epollfd, m_sockfd); <span class="comment">//从epoll中移除，并调用close关闭文件描述符</span></span><br><span class="line">        m_sockfd=<span class="number">-1</span>;</span><br><span class="line">        m_user_count--;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>先处理读：使用主从状态机，主状态机的状态分别是：CHECK_STATE_REQUESTLINE:当前正在分析请求行，CHECK_STATE_HEADER:当前正在分析头部字段，CHECK_STATE_CONTENT:当前正在解析请求体；从状态机的状态是：LINE_OK:读取到一个完整的行，LINE_BAD:行出错，LINE_OPEN:行数据尚且不完整</p>
+  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">http_conn::HTTP_CODE <span class="title">http_conn::process_read</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    LINE_STATUS line_status = LINE_OK;</span><br><span class="line">    HTTP_CODE ret=NO_REQUEST;</span><br><span class="line"></span><br><span class="line">    <span class="type">char</span>* text = <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>((m_check_state == CHECK_STATE_CONTENT &amp;&amp; line_status == LINE_OK)</span><br><span class="line">    || ((line_status = <span class="built_in">parse_line</span>()) == LINE_OK))&#123;</span><br><span class="line">        text = <span class="built_in">get_line</span>();</span><br><span class="line">        m_state_line=m_checked_index;</span><br><span class="line">        <span class="keyword">switch</span> (m_check_state)&#123;</span><br><span class="line">            <span class="keyword">case</span> CHECK_STATE_REQUESTLINE:</span><br><span class="line">            &#123;</span><br><span class="line">                ret =<span class="built_in">parse_request_line</span>(text);</span><br><span class="line">                <span class="keyword">if</span>(ret==BAD_REQUEST)&#123;</span><br><span class="line">                    <span class="keyword">return</span> BAD_REQUEST;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">case</span> CHECK_STATE_HEADER:</span><br><span class="line">            &#123;</span><br><span class="line">                ret =<span class="built_in">parse_headers</span>(text);</span><br><span class="line">                <span class="keyword">if</span>(ret==BAD_REQUEST)&#123;</span><br><span class="line">                    <span class="keyword">return</span> BAD_REQUEST;</span><br><span class="line">                &#125;<span class="keyword">else</span> <span class="keyword">if</span>(ret == GET_REQUEST)&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="built_in">do_request</span>();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">case</span> CHECK_STATE_CONTENT:</span><br><span class="line">            &#123;</span><br><span class="line">                ret=<span class="built_in">parse_content</span>(text);</span><br><span class="line">                <span class="keyword">if</span>(ret==GET_REQUEST)&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="built_in">do_request</span>();</span><br><span class="line">                &#125;</span><br><span class="line">                line_status=LINE_OPEN;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">return</span> INTERNAL_ERROR;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> NO_REQUEST;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>响应http报文请求（可扩展）</p>
+  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">http_conn::HTTP_CODE <span class="title">http_conn::do_request</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    * 得到一个完整的,正确的http请求后</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="built_in">strcpy</span>(m_real_file, doc_root);</span><br><span class="line">    <span class="type">int</span> len=<span class="built_in">strlen</span>(doc_root);</span><br><span class="line">    <span class="built_in">strncpy</span>(m_real_file+len, m_url, FILENAME_LEN-len<span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">stat</span>(m_real_file, &amp;m_file_stat)&lt;<span class="number">0</span>)&#123; <span class="comment">//获取文件信息</span></span><br><span class="line">        <span class="keyword">return</span> NO_RESOURCE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(!(m_file_stat.st_mode &amp; S_IROTH))&#123; <span class="comment">//判断访问权限</span></span><br><span class="line">        <span class="keyword">return</span> FORBIDDEN_REQUEST;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">S_ISDIR</span>(m_file_stat.st_mode))&#123; <span class="comment">//是否是根目录</span></span><br><span class="line">        <span class="keyword">return</span> BAD_REQUEST;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//以只读的方式打开文件</span></span><br><span class="line">    <span class="type">int</span> fd=<span class="built_in">open</span>(m_real_file, O_RDONLY);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//创建内存映射</span></span><br><span class="line">    m_file_address = ( <span class="type">char</span>* )<span class="built_in">mmap</span>( <span class="number">0</span>, m_file_stat.st_size, PROT_READ, MAP_PRIVATE, fd, <span class="number">0</span> );</span><br><span class="line">    <span class="built_in">close</span>( fd );</span><br><span class="line">    <span class="keyword">return</span> FILE_REQUEST;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>拼接响应报文</p>
+  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">bool</span> <span class="title">http_conn::process_write</span><span class="params">(http_conn::HTTP_CODE ret)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (ret)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">case</span> INTERNAL_ERROR:</span><br><span class="line">            <span class="built_in">add_status_line</span>( <span class="number">500</span>, error_500_title );</span><br><span class="line">            <span class="built_in">add_headers</span>( <span class="built_in">strlen</span>( error_500_form ) );</span><br><span class="line">            <span class="keyword">if</span> ( ! <span class="built_in">add_content</span>( error_500_form ) ) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> BAD_REQUEST:</span><br><span class="line">            <span class="built_in">add_status_line</span>( <span class="number">400</span>, error_400_title );</span><br><span class="line">            <span class="built_in">add_headers</span>( <span class="built_in">strlen</span>( error_400_form ) );</span><br><span class="line">            <span class="keyword">if</span> ( ! <span class="built_in">add_content</span>( error_400_form ) ) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> NO_RESOURCE:</span><br><span class="line">            <span class="built_in">add_status_line</span>( <span class="number">404</span>, error_404_title );</span><br><span class="line">            <span class="built_in">add_headers</span>( <span class="built_in">strlen</span>( error_404_form ) );</span><br><span class="line">            <span class="keyword">if</span> ( ! <span class="built_in">add_content</span>( error_404_form ) ) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> FORBIDDEN_REQUEST:</span><br><span class="line">            <span class="built_in">add_status_line</span>( <span class="number">403</span>, error_403_title );</span><br><span class="line">            <span class="built_in">add_headers</span>(<span class="built_in">strlen</span>( error_403_form));</span><br><span class="line">            <span class="keyword">if</span> ( ! <span class="built_in">add_content</span>( error_403_form ) ) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> FILE_REQUEST:</span><br><span class="line">            <span class="built_in">add_status_line</span>(<span class="number">200</span>, ok_200_title );</span><br><span class="line">            <span class="built_in">add_headers</span>(m_file_stat.st_size);</span><br><span class="line">            m_iv[ <span class="number">0</span> ].iov_base = m_write_buf;</span><br><span class="line">            m_iv[ <span class="number">0</span> ].iov_len = m_write_idx;</span><br><span class="line">            m_iv[ <span class="number">1</span> ].iov_base = m_file_address;</span><br><span class="line">            m_iv[ <span class="number">1</span> ].iov_len = m_file_stat.st_size;</span><br><span class="line">            m_iv_count = <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line">            bytes_to_send = m_write_idx + m_file_stat.st_size;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    m_iv[ <span class="number">0</span> ].iov_base = m_write_buf;</span><br><span class="line">    m_iv[ <span class="number">0</span> ].iov_len = m_write_idx;</span><br><span class="line">    m_iv_count = <span class="number">1</span>;</span><br><span class="line">    bytes_to_send = m_write_idx;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>返回客户端响应结果</p>
+  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 往写缓冲中写入待发送的数据</span></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">http_conn::add_response</span><span class="params">( <span class="type">const</span> <span class="type">char</span>* format, ... )</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>( m_write_idx &gt;= WRITE_BUFFER_SIZE ) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    va_list arg_list;<span class="comment">// 可变参数列表</span></span><br><span class="line">    <span class="built_in">va_start</span>( arg_list, format ); <span class="comment">// 初始化列表,指定从哪里开始</span></span><br><span class="line">    <span class="type">int</span> len = <span class="built_in">vsnprintf</span>( m_write_buf + m_write_idx, WRITE_BUFFER_SIZE - <span class="number">1</span> - m_write_idx, format, arg_list );</span><br><span class="line">    <span class="keyword">if</span>( len &gt;= ( WRITE_BUFFER_SIZE - <span class="number">1</span> - m_write_idx ) ) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    m_write_idx += len;</span><br><span class="line">    <span class="built_in">va_end</span>( arg_list );</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>补充知识点：</p>
+<p>可变参数列表：va_list</p>
+<p>内存映射：mmap</p>
+<p>POSIX高级写函数： writev</p>
+<h3 id="threadpool：线程池类"><a href="#threadpool：线程池类" class="headerlink" title="threadpool：线程池类"></a>threadpool：线程池类</h3><p>基于c++的线程函数库写的，其实c++的thread就是对底层线程库的包装，这样的线程池的好处是可以跨平台</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;mutex&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;condition_variable&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;list&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">class</span> <span class="title class_">T</span>&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ThreadPool</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">ThreadPool</span>(<span class="type">int</span> threadNum,<span class="type">int</span> maxTaskNum=<span class="number">10000</span>):</span><br><span class="line">    _threadNum(threadNum),_stop(<span class="literal">false</span>), _maxTaskNum(maxTaskNum)&#123;</span><br><span class="line">        _threads.<span class="built_in">resize</span>(_threadNum);</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>; i&lt;_threadNum; i++)&#123;</span><br><span class="line">            cout&lt;&lt;<span class="string">&quot;create thread-&quot;</span>&lt;&lt;i&lt;&lt;<span class="string">&quot;: &quot;</span>;</span><br><span class="line">            _threads[i]=<span class="keyword">new</span> <span class="built_in">thread</span>(&amp;ThreadPool&lt;T&gt;::run, <span class="keyword">this</span>);</span><br><span class="line">            cout&lt;&lt;_threads[i]-&gt;<span class="built_in">get_id</span>()&lt;&lt;endl;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ~<span class="built_in">ThreadPool</span>()&#123;</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="function">unique_lock&lt;mutex&gt; <span class="title">lock</span><span class="params">(_mu)</span></span>;</span><br><span class="line">            _stop = <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        _cv.<span class="built_in">notify_all</span>();</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>; i&lt;_threadNum; i++)&#123;</span><br><span class="line">            _threads[i]-&gt;<span class="built_in">join</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>; i&lt;_threadNum; i++)&#123;</span><br><span class="line">            <span class="keyword">delete</span> _threads[i];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">append</span><span class="params">(T *task)</span></span>&#123;</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="function">unique_lock&lt;mutex&gt; <span class="title">lock</span><span class="params">(_mu)</span></span>;</span><br><span class="line">            <span class="keyword">if</span>(_taskQueue.<span class="built_in">size</span>() &gt;=_maxTaskNum)&#123;</span><br><span class="line">                lock.<span class="built_in">unlock</span>();</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            _taskQueue.<span class="built_in">push_back</span>(task);</span><br><span class="line">            _cv.<span class="built_in">notify_one</span>(); <span class="comment">//唤醒一个等待线程</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(<span class="literal">true</span>)&#123;</span><br><span class="line">            <span class="function">unique_lock&lt;mutex&gt; <span class="title">lock</span><span class="params">(_mu)</span></span>;</span><br><span class="line">            _cv.<span class="built_in">wait</span>(lock, [=]()&#123;<span class="keyword">return</span> _stop || _taskQueue.<span class="built_in">size</span>()&gt;<span class="number">0</span>;&#125;); <span class="comment">//停止的时候会唤醒所有等待线程</span></span><br><span class="line">            <span class="keyword">if</span>(_stop &amp;&amp; _taskQueue.<span class="built_in">size</span>()==<span class="number">0</span>)&#123; <span class="comment">//只有当停止标志为true且_taskQueue为空时才停止线程</span></span><br><span class="line">                cout&lt;&lt;<span class="string">&quot;stop&quot;</span>&lt;&lt;endl;</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            T* task=_taskQueue.<span class="built_in">front</span>();</span><br><span class="line">            _taskQueue.<span class="built_in">pop_front</span>();</span><br><span class="line">            lock.<span class="built_in">unlock</span>();</span><br><span class="line">            <span class="comment">//模拟proactor</span></span><br><span class="line">            task-&gt;<span class="built_in">process</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> _threadNum;   <span class="comment">//线程数</span></span><br><span class="line">    <span class="type">bool</span> _stop;         <span class="comment">//线程停止工作标志</span></span><br><span class="line">    <span class="type">int</span> _maxTaskNum;    <span class="comment">//最大任务数量</span></span><br><span class="line">    list&lt;T*&gt; _taskQueue;    <span class="comment">//任务队列</span></span><br><span class="line">    mutex _mu;              <span class="comment">//任务队列互斥量</span></span><br><span class="line">    condition_variable _cv; <span class="comment">//条件变量，用来唤醒等待任务的线程</span></span><br><span class="line">    vector&lt;thread*&gt; _threads; <span class="comment">//线程数组</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="遇见的小问题"><a href="#遇见的小问题" class="headerlink" title="遇见的小问题"></a>遇见的小问题</h3><p>图片无法加载：返回403 forbiden， 查看图片权限：ls -l 为-rw——， 其他人没有权限，修改其权限：sudo chmod u&#x3D;rw，g&#x3D;rw，o&#x3D;rw img1.png</p>
+<ul>
+<li>u表示所有者对该文件所拥有的权限</li>
+<li>g表示所属组对该文件所拥有的权限</li>
+<li>o表示其他人对该文件所拥有的权限</li>
+</ul>
+
+  </div>
+  <div id=""></div>
+</div>
+
+<script>
+  
+Fancybox.bind('[data-fancybox="fancybox-gallery-img"]', {
+  dragToClose: true,
+  Toolbar: true,
+  closeButton: "top",
+  Image: {
+    zoom: true,
+  },
+  on: {
+    initCarousel: (fancybox) => {
+      const slide = fancybox.Carousel.slides[fancybox.Carousel.page];
+      fancybox.$container.style.setProperty(
+        "--bg-image",
+        `url("${slide.$thumb.src}")`
+      );
+    },
+    "Carousel.change": (fancybox, carousel, to, from) => {
+      const slide = carousel.slides[to];
+      fancybox.$container.style.setProperty(
+        "--bg-image",
+        `url("${slide.$thumb.src}")`
+      );
+    },
+  },
+});
+</script>
+
+<style>
+    #noneimg img {
+        display: none;
+        z-index: 9999;
+        /* width: 600px !important; */
+        min-width: 0%;
+        max-width: 90%;
+        max-height: 80%;
+        border-radius: 0px;
+        position: fixed;
+        box-shadow: 0 0 0px #c3c3c300 !important;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto !important;
+    }
+
+    @media screen and (max-width:600px) {
+        #noneimg img {
+            max-width: 88%
+        }
+    }
+</style>
+
+    <div class="post-paging">
+    
+
+    
+    <a href="/2022/05/08/%E7%BD%91%E7%AB%99%E6%A8%A1%E6%9D%BF%E4%BD%BF%E7%94%A8/">
+        <div class="post-paging-next">
+            <span>下一篇</span>
+            <p>blog文件头怎么写</p>
+        </div>
+    </a>
+    
+</div>
+</div>
+		
+<div class="footer">
+	<div class="Copyright">
+		©2023 By SYX. 主题：<a
+			style="text-decoration: none;display: contents; color: #898F9F;"
+			target="_blank" rel="noopener" href="https://github.com/qiaobug/hexo-theme-quiet">Quiet</a>
+	</div>
+	<div class="contact">
+		
+		<a target="_blank" rel="noopener" href="https://github.com/SIIYIIX/">
+			<img src="/image/github.jpeg" alt="Quiet主题">
+		</a>
+		
+	</div>
+</div>
+
+<script src="/js/gotop.js"></script>
+
+
+<style type="text/css">
+    @media screen and (min-width: 600px) {
+        .goTop>span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            opacity: 0.8;
+            background: rgba(18, 24, 58, 0.06);
+            text-align: center;
+            transition: border .5s;
+            border: 1px solid rgba(18, 24, 58, 0.06);
+
+            -moz-transition: border .5s;
+            /* Firefox 4 */
+            -webkit-transition: border .5s;
+            /* Safari 和 Chrome */
+            -o-transition: border .5s;
+            /* Opera */
+        }
+
+        .goTop>span:hover {
+            border: 1px solid #6680B3;
+        }
+
+
+        .goTop {
+            position: fixed;
+            right: 30px;
+            bottom: 80px;
+        }
+
+        .goTop>span>svg {
+            width: 20px;
+            height: 20px;
+            opacity: 0.7;
+        }
+
+    }
+
+    @media screen and (max-width: 600px) {
+        .goTop {
+            display: none;
+        }
+    }
+</style>
+<div class="goTop" id="js-go_top">
+    <span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g>
+                <path d="M13 12v8h-2v-8H4l8-8 8 8z"></path>
+            </g>
+        </svg>
+    </span>
+</div>
+<script>
+    $( '#js-go_top' )
+	.gotoTop( {
+		offset: 500,
+		speed: 300,
+		animationShow: {
+			'transform': 'translate(0,0)',
+			'transition': 'transform .5s ease-in-out'
+		},
+		animationHide: {
+			'transform': 'translate(100px,0)',
+			'transition': 'transform .5s ease-in-out'
+		}
+	} );
+</script>
+
+
+    <!-- Gitalk -->
+    <script>
+        const data = '{"clientID":"7df590635071cd1de8eb","clientSecret":"eaf7309ddcf82b5b65bacb25deb61511fad2cb07","repo":"SIIYIIX.github.io","owner":"SIIYIIX","admin":"SIIYIIX"}'
+        const gitalk = new Gitalk({
+            ...JSON.parse( data),
+            id:location.pathname,
+            distractionFreeMode:false
+        })
+        gitalk.render('gitalk-container')
+    </script>
+
+<script>
+	console.log('\n %c Hexo-Quiet 主题 %c https://github.com/QiaoBug/hexo-theme-quiet \n', 'color: #fadfa3; background: #030307; padding:5px 0;', 'background: #fadfa3; padding:5px 0;')
+</script>
+	</body>
+</html>
+
